@@ -19,11 +19,21 @@ directive, and in the `ejsOptions` add a path (absolute) to the location of your
         '**/*.ejs': ['ejs']
     },
     ejsOptions: {
-        parentPath: 'app/assets/javascripts/templates/'
+        parentPath: 'app/assets/javascripts/templates/',
+        compileOptions: {
+            // See https://github.com/tj/ejs#options for more options
+            open: '{{',
+            close: '}}',
+
+            // An example of passing helper function that the EJS files can use.
+            helpMe: function () {
+                return 'Help!!';
+            }
+        }
     },
     [...]
 
-The `parentPath` is relative to the `basePath` specified in your config. 
+The `parentPath` is relative to the `basePath` specified in your config.
 
 The `JST` global variable will contain keys relative to `parentPath` for your templates. E.g. for
 the file `/Users/sebi/devel/super_site/app/assets/javascripts/templates/homepage/header.ejs`, by
