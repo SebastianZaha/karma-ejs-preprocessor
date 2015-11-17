@@ -1,19 +1,19 @@
 var ejs = require('ejs');
 var path = require('path');
 
-var createTemplateName = function (basePath, parentPath, filePath) {	
+var createTemplateName = function (basePath, parentPath, filePath) {
 	var extensionRegex = /(\.[a-z]+)+$/;
 	var absolutePath = path.join(basePath, parentPath);
-	var normalizedAbsolutePath = absolutePath.lastIndexOf('/') == absolutePath.length - 1 
+	var normalizedAbsolutePath = absolutePath.lastIndexOf('/') == absolutePath.length - 1
 					? absolutePath
 					: absolutePath + '/';
 	var templateName = filePath.replace(normalizedAbsolutePath, '')
 				   .replace(extensionRegex, '');
-	
+
 	return templateName;
 };
 
-var createEjsPreprocessor = function(logger, basePath, ejsOptions) {
+var createEjsPreprocessor = function(logger, helper, basePath, ejsOptions) {
     var log = logger.create('preprocessor.ejs');
 
     return function(content, file, done) {
@@ -28,7 +28,7 @@ var createEjsPreprocessor = function(logger, basePath, ejsOptions) {
               (function() {\
                 this.JST || (this.JST = {});\
                 this.JST['" + templateName +
-                  "'] = " + ejs.compile(content, {client: true}) +
+                  "'] = " + ejs.compile(content, helper.merge({client: true}, ejsOptions.compileOptions || {})) +
             "}).call(this);";
         } catch (e) {
             log.error('%s\n  at %s', e.message, content);
@@ -38,7 +38,7 @@ var createEjsPreprocessor = function(logger, basePath, ejsOptions) {
     };
 };
 
-createEjsPreprocessor.$inject = ['logger', 'config.basePath', 'config.ejsOptions'];
+createEjsPreprocessor.$inject = ['logger', 'helper', 'config.basePath', 'config.ejsOptions'];
 
 module.exports = {
     'preprocessor:ejs': ['factory', createEjsPreprocessor]
